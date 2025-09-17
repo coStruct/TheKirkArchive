@@ -1,0 +1,19 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/webhooks/clerk/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/entries/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/votes/route.ts": {
+      "maxDuration": 10
+    }
+  }
+}
