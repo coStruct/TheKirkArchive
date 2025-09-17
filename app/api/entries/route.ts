@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   if (stats && stats.length > 0) {
     for (const stat of stats) {
-      const { data: statData, error: statError } = await supabase
+      const { data: statData } = await supabase
         .from('stats')
         .upsert({ description: stat.description, source_url: stat.source_url })
         .select()
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
 
   if (bible_verses && bible_verses.length > 0) {
     for (const verse of bible_verses) {
-      const { data: verseData, error: verseError } = await supabase
+      const { data: verseData } = await supabase
         .from('bible_verses')
         .upsert({
           book: verse.book,

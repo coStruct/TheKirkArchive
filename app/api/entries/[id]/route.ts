@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { userId } = await auth()
 
@@ -19,10 +19,11 @@ export async function PATCH(
     return NextResponse.json({ error: 'Access denied' }, { status: 403 })
   }
 
+  const resolvedParams = await params
   const body = await req.json()
   const { verified_status, is_locked } = body
 
-  const updateData: any = {}
+  const updateData: Record<string, unknown> = {}
   if (verified_status !== undefined) {
     updateData.verified_status = verified_status
   }
@@ -35,7 +36,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from('entries')
     .update(updateData)
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
     .select()
     .single()
 
@@ -48,7 +49,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { userId } = await auth()
 
@@ -63,10 +64,11 @@ export async function DELETE(
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
   }
 
+  const resolvedParams = await params
   const { error } = await supabase
     .from('entries')
     .delete()
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
