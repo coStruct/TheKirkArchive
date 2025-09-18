@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     .from('entries')
     .insert({
       question,
-      answer_summary,
+      answer_summary: answer_summary || null,
       video_id: youtubeInfo.videoId,
       start_seconds: youtubeInfo.startSeconds,
       submitted_by_clerk_id: userId,

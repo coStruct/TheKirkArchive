@@ -30,7 +30,9 @@ export default function EntryCard({ entry, onVote }: EntryCardProps) {
         </div>
       </div>
 
-      <p className="text-gray-700 mb-4">{entry.answer_summary}</p>
+      {entry.answer_summary && (
+        <p className="text-gray-700 mb-4">{entry.answer_summary}</p>
+      )}
 
       {entry.stats && entry.stats.length > 0 && (
         <div className="mb-4">

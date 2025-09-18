@@ -182,7 +182,9 @@ export default function DashboardPage() {
                       Submitted: {new Date(entry.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-gray-700 mb-2">{entry.answer_summary}</p>
+                  {entry.answer_summary && (
+                    <p className="text-gray-700 mb-2">{entry.answer_summary}</p>
+                  )}
                   <p className="text-sm text-gray-500">
                     Submitted by: {entry.submitted_by_clerk_id}
                   </p>

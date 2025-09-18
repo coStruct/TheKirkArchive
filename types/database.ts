@@ -3,7 +3,7 @@
 export interface Entry {
   id: string
   question: string
-  answer_summary: string
+  answer_summary: string | null
   video_id: string
   start_seconds: number
   submitted_by_clerk_id: string
@@ -88,7 +88,7 @@ export interface VoteResponse {
 
 export interface EntrySubmission {
   question: string
-  answer_summary: string
+  answer_summary?: string
   youtube_url: string
   stats?: Array<{ description: string; source_url?: string }>
   bible_verses?: Array<{ book: string; chapter: number; verse: number; text: string }>

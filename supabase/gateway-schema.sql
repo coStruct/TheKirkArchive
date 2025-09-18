@@ -16,7 +16,7 @@ CREATE TABLE verifier_allowlist (
 CREATE TABLE entries (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   question TEXT NOT NULL,
-  answer_summary TEXT NOT NULL,
+  answer_summary TEXT,
   video_id TEXT NOT NULL,
   start_seconds INTEGER DEFAULT 0,
   submitted_by_clerk_id TEXT NOT NULL,
