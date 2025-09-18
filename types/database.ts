@@ -17,7 +17,7 @@ export interface EntryRevision {
   id: string
   entry_id: string
   revised_by_clerk_id: string
-  changes_json: Record<string, any>
+  changes_json: Record<string, unknown>
   created_at: Date
 }
 

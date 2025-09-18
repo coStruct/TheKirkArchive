@@ -7,7 +7,7 @@ import { EntryWithRelations } from '@/types/database'
 import { useAuth } from '@clerk/nextjs'
 
 export default function Home() {
-  const { userId, isLoaded } = useAuth()
+  const { userId } = useAuth()
   const [entries, setEntries] = useState<EntryWithRelations[]>([])
   const [loading, setLoading] = useState(true)
 

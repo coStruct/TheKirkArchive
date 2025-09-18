@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/header'
 import EntryCard from '@/components/entry-card'
@@ -16,7 +16,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!query.trim()) return
 
@@ -32,7 +32,7 @@ function SearchContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [query])
 
   useEffect(() => {
     const initialQuery = searchParams.get('q')
@@ -40,7 +40,7 @@ function SearchContent() {
       setQuery(initialQuery)
       handleSearch()
     }
-  }, [])
+  }, [searchParams, handleSearch])
 
   const handleVote = async (entryId: string, voteType: 'upvote' | 'downvote') => {
     if (!userId) {
