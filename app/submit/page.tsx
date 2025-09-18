@@ -127,7 +127,7 @@ export default function SubmitPage() {
         },
         body: JSON.stringify({
           question: formData.question,
-          answer_summary: formData.answer_summary.trim() || undefined,
+          answer_summary: undefined,
           youtube_url: youtubeUrl,
           stats: cleanStats,
           bible_verses: bibleVerses
@@ -190,152 +190,203 @@ export default function SubmitPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit New Entry</h1>
-          <p className="text-gray-600">Submit a debate question and Charlie Kirk&apos;s response from a YouTube video.</p>
+      <main className="container mx-auto px-4 py-12 max-w-5xl">
+        <div className="text-center mb-12 animate-fade-in-up">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            Submit New Entry
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Contribute to the archive by submitting a debate question and Charlie Kirk&apos;s response from a YouTube video.
+          </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mt-6 rounded-full"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Main Form */}
-          <div className="space-y-6">
-            {/* Question */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <BookOpen className="inline w-4 h-4 mr-1" />
-                Debate Question *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.question}
-                onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="What was the question or topic being debated?"
-              />
-            </div>
-
-            {/* YouTube URL */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Play className="inline w-4 h-4 mr-1" />
-                YouTube URL *
-              </label>
-              <input
-                type="url"
-                required
-                value={formData.youtube_url}
-                onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-                className={`w-full px-3 py-2 border text-gray-900 rounded-md focus:outline-none focus:ring-2 ${
-                  youtubePreview ? 'border-green-300 focus:ring-green-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
-              />
-              {youtubePreview && (
-                <div className="mt-2 flex items-center text-sm text-green-600">
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  Valid YouTube video detected
-                </div>
-              )}
-            </div>
-
-            {/* Timestamp */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Clock className="inline w-4 h-4 mr-1" />
-                Question Start Time (Optional)
-              </label>
-              <div className="flex items-center space-x-2">
+          {/* Main Form */}
+          <div className="space-y-8">
+            {/* Question Section */}
+            <div className="form-section animate-fade-in-up">
+              <div className="form-section-header">
+                <h3 className="form-section-title">
+                  <BookOpen className="form-section-icon" />
+                  Debate Question
+                </h3>
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Required</span>
+              </div>
+              <div>
+                <label className="form-label">What was the question or topic being debated?</label>
                 <input
-                  type="number"
-                  min="0"
-                  value={formData.timestamp_minutes}
-                  onChange={(e) => setFormData({ ...formData, timestamp_minutes: e.target.value })}
-                  className="w-20 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
+                  type="text"
+                  required
+                  value={formData.question}
+                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                  className={`form-input ${formData.question ? 'success' : ''}`}
+                  placeholder="Enter the debate question or topic that was discussed..."
                 />
-                <span className="text-gray-500">min</span>
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={formData.timestamp_seconds}
-                  onChange={(e) => setFormData({ ...formData, timestamp_seconds: e.target.value })}
-                  className="w-20 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                />
-                <span className="text-gray-500">sec</span>
-                {(formData.timestamp_minutes || formData.timestamp_seconds) && (
-                  <span className="text-sm text-gray-600">
-                    = {getTotalSeconds()}s total
-                  </span>
+                {formData.question && (
+                  <div className="helper-text success flex items-center mt-2">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Question captured
+                  </div>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                When in the video does the question/topic start? This will create a direct link.
-              </p>
             </div>
 
-            {/* Answer Summary */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Answer Summary (Optional)
-              </label>
-              <textarea
-                value={formData.answer_summary}
-                onChange={(e) => setFormData({ ...formData, answer_summary: e.target.value })}
-                rows={4}
-                className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Optional: Summarize Charlie Kirk's response. If left blank, moderators will watch the video directly."
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Leave blank if you prefer moderators to watch the video directly.
-              </p>
+            {/* YouTube Video Section */}
+            <div className="form-section animate-fade-in-up">
+              <div className="form-section-header">
+                <h3 className="form-section-title">
+                  <Play className="form-section-icon" />
+                  YouTube Video
+                </h3>
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Required</span>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="form-label">YouTube URL</label>
+                  <input
+                    type="url"
+                    required
+                    value={formData.youtube_url}
+                    onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
+                    className={`form-input ${youtubePreview ? 'success' : formData.youtube_url && !youtubePreview ? 'error' : ''}`}
+                    placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  />
+                  {youtubePreview ? (
+                    <div className="helper-text success flex items-center mt-2">
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Valid YouTube video detected
+                    </div>
+                  ) : formData.youtube_url ? (
+                    <div className="helper-text error flex items-center mt-2">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      Please enter a valid YouTube URL
+                    </div>
+                  ) : (
+                    <div className="helper-text mt-2">
+                      Paste the YouTube URL where Charlie Kirk responds to the question
+                    </div>
+                  )}
+                </div>
+
+                {/* Compact Timestamp Input */}
+                <div>
+                  <label className="form-label flex items-center">
+                    <Clock className="w-4 h-4 mr-1" />
+                    Question start time (optional)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.timestamp_minutes}
+                      onChange={(e) => setFormData({ ...formData, timestamp_minutes: e.target.value })}
+                      className="form-input w-20 text-center"
+                      placeholder="0"
+                    />
+                    <span className="text-gray-500 text-sm">min</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      value={formData.timestamp_seconds}
+                      onChange={(e) => setFormData({ ...formData, timestamp_seconds: e.target.value })}
+                      className="form-input w-20 text-center"
+                      placeholder="0"
+                    />
+                    <span className="text-gray-500 text-sm">sec</span>
+                    {(formData.timestamp_minutes || formData.timestamp_seconds) && (
+                      <span className="text-sm text-blue-600 font-medium ml-2">
+                        = {getTotalSeconds()}s
+                      </span>
+                    )}
+                  </div>
+                  <div className="helper-text mt-1">
+                    When in the video does the question start? Creates a direct link.
+                  </div>
+                </div>
+
+                {/* Video Preview */}
+                {youtubePreview && (
+                  <div className="mt-4">
+                    <div className="aspect-video bg-gradient-to-br from-gray-900 to-black rounded-xl overflow-hidden mb-3">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?start=${getTotalSeconds()}` : ''}`}
+                        className="youtube-iframe"
+                        allowFullScreen
+                        title="YouTube video preview"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-sm bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-gray-600">Video:</span>
+                          <code className="bg-white px-2 py-1 rounded font-mono text-xs ml-1">{youtubePreview.videoId}</code>
+                        </div>
+                        {getTotalSeconds() > 0 && (
+                          <div>
+                            <span className="text-gray-600">Start:</span>
+                            <code className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono text-xs ml-1">{getTotalSeconds()}s</code>
+                          </div>
+                        )}
+                      </div>
+                      <a
+                        href={`https://youtu.be/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?t=${getTotalSeconds()}` : ''}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary text-sm py-1 px-3"
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Open
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-
-            {/* Statistics */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  <BarChart3 className="inline w-4 h-4 mr-1" />
-                  Related Statistics (Optional)
-                </label>
+            {/* Statistics Section */}
+            <div className="form-section animate-fade-in-up">
+              <div className="form-section-header">
+                <h3 className="form-section-title">
+                  <BarChart3 className="form-section-icon" />
+                  Related Statistics
+                </h3>
                 <button
                   type="button"
                   onClick={addStat}
-                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm"
+                  className="btn-secondary text-sm py-2 px-4"
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Add Stat
+                  Add Statistic
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {formData.stats.map((stat, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded-md bg-gray-50">
-                    <div className="space-y-2">
+                  <div key={index} className="card p-4 border-l-4 border-l-blue-500 animate-slide-in-right">
+                    <div className="space-y-3">
                       <input
                         type="text"
                         value={stat.description}
                         onChange={(e) => updateStat(index, 'description', e.target.value)}
-                        placeholder="Statistical claim or fact mentioned"
-                        className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., '65% of Americans support this policy according to Pew Research'"
+                        className="form-input"
                       />
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <input
                           type="url"
                           value={stat.source_url}
                           onChange={(e) => updateStat(index, 'source_url', e.target.value)}
-                          placeholder="Source URL (optional)"
-                          className="flex-1 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Source URL (optional but recommended)"
+                          className="form-input flex-1"
                         />
                         <button
                           type="button"
                           onClick={() => removeStat(index)}
-                          className="px-3 py-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50"
+                          className="btn-danger flex-shrink-0"
                           title="Remove statistic"
                         >
                           <Minus className="w-4 h-4" />
@@ -344,132 +395,103 @@ export default function SubmitPage() {
                     </div>
                   </div>
                 ))}
+                {formData.stats.length === 0 && (
+                  <div className="text-center py-6 text-gray-500">
+                    <BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p className="text-sm">Add any statistical claims or data mentioned in the response</p>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Right Column - Preview & Bible Verses */}
-          <div className="space-y-6">
-            {/* YouTube Preview */}
-            {youtubePreview && (
-              <div className="border border-gray-200 rounded-lg p-4 bg-white">
-                <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
-                  <Play className="w-4 h-4 mr-1" />
-                  Video Preview
-                </h3>
-                <div className="aspect-video bg-gray-100 rounded-md mb-3">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?start=${getTotalSeconds()}` : ''}`}
-                    className="w-full h-full rounded-md"
-                    allowFullScreen
-                  />
-                </div>
-                <div className="text-sm text-gray-600">
-                  <p className="mb-1">Video ID: <code className="bg-gray-100 px-1 rounded">{youtubePreview.videoId}</code></p>
-                  {getTotalSeconds() > 0 && (
-                    <p>Start time: <code className="bg-gray-100 px-1 rounded">{getTotalSeconds()}s</code></p>
-                  )}
-                </div>
-                <a
-                  href={`https://youtu.be/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?t=${getTotalSeconds()}` : ''}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center mt-2 text-sm text-blue-600 hover:text-blue-700"
-                >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open in YouTube
-                </a>
-              </div>
-            )}
 
             {/* Bible Verses */}
-            <div className="border border-gray-200 rounded-lg p-4 bg-white">
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  <BookOpen className="inline w-4 h-4 mr-1" />
-                  Bible References (Optional)
-                </label>
+            <div className="form-section animate-fade-in-up">
+              <div className="form-section-header">
+                <h3 className="form-section-title">
+                  <BookOpen className="form-section-icon" />
+                  Bible References
+                </h3>
                 <button
                   type="button"
                   onClick={addVerseRange}
-                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm"
+                  className="btn-secondary text-sm py-2 px-4"
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Add Range
+                  Add Reference
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {formData.bible_verse_ranges.map((range, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded-md bg-gray-50">
-                    <div className="space-y-3">
+                  <div key={index} className="card p-4 border-l-4 border-l-purple-500 animate-slide-in-right">
+                    <div className="space-y-4">
                       <input
                         type="text"
                         value={range.book}
                         onChange={(e) => updateVerseRange(index, 'book', e.target.value)}
                         placeholder="Book (e.g., John, Romans, 1 Corinthians)"
-                        className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-input"
                       />
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs text-gray-600 mb-1">From:</label>
-                          <div className="flex gap-1">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-600">From:</label>
+                          <div className="flex items-center gap-2">
                             <input
                               type="number"
                               min="1"
                               value={range.startChapter}
                               onChange={(e) => updateVerseRange(index, 'startChapter', e.target.value)}
                               placeholder="Ch"
-                              className="w-16 px-2 py-1 border text-gray-900 border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="form-input w-16 text-center text-sm"
                             />
-                            <span className="text-gray-500 self-center">:</span>
+                            <span className="text-gray-400 font-semibold">:</span>
                             <input
                               type="number"
                               min="1"
                               value={range.startVerse}
                               onChange={(e) => updateVerseRange(index, 'startVerse', e.target.value)}
                               placeholder="V"
-                              className="w-16 px-2 py-1 border text-gray-900 border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="form-input w-16 text-center text-sm"
                             />
                           </div>
                         </div>
 
-                        <div>
-                          <label className="block text-xs text-gray-600 mb-1">To (optional):</label>
-                          <div className="flex gap-1">
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-600">To (optional):</label>
+                          <div className="flex items-center gap-2">
                             <input
                               type="number"
                               min="1"
                               value={range.endChapter}
                               onChange={(e) => updateVerseRange(index, 'endChapter', e.target.value)}
                               placeholder="Ch"
-                              className="w-16 px-2 py-1 border text-gray-900 border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="form-input w-16 text-center text-sm"
                             />
-                            <span className="text-gray-500 self-center">:</span>
+                            <span className="text-gray-400 font-semibold">:</span>
                             <input
                               type="number"
                               min="1"
                               value={range.endVerse}
                               onChange={(e) => updateVerseRange(index, 'endVerse', e.target.value)}
                               placeholder="V"
-                              className="w-16 px-2 py-1 border text-gray-900 border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="form-input w-16 text-center text-sm"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <textarea
                           value={range.text}
                           onChange={(e) => updateVerseRange(index, 'text', e.target.value)}
-                          placeholder="Verse text (optional)"
+                          placeholder="Verse text (optional but helpful for context)"
                           rows={2}
-                          className="flex-1 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                          className="form-input flex-1 resize-none text-sm"
                         />
                         <button
                           type="button"
                           onClick={() => removeVerseRange(index)}
-                          className="px-3 py-2 text-red-600 hover:text-red-700 rounded-md hover:bg-red-50 self-start"
+                          className="btn-danger flex-shrink-0 self-start"
                           title="Remove verse range"
                         >
                           <Minus className="w-4 h-4" />
@@ -477,56 +499,103 @@ export default function SubmitPage() {
                       </div>
 
                       {range.book && range.startChapter && range.startVerse && (
-                        <div className="text-xs text-gray-600 mt-1">
-                          Preview: <span className="font-medium">
-                            {range.book} {range.startChapter}:{range.startVerse}
+                        <div className="p-2 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="text-sm text-purple-700">
+                            <strong>Reference:</strong> {range.book} {range.startChapter}:{range.startVerse}
                             {(range.endChapter || range.endVerse) && (
                               <>-{range.endChapter || range.startChapter}:{range.endVerse || range.startVerse}</>
                             )}
-                          </span>
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
+                {formData.bible_verse_ranges.length === 0 && (
+                  <div className="text-center py-6 text-gray-500">
+                    <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p className="text-sm">Add any Bible verses referenced in the response</p>
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Examples: &quot;John 3:16&quot;, &quot;Romans 8:28-30&quot;, &quot;1 Corinthians 13:1-13&quot;
-              </p>
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-600 flex items-start">
+                  <BookOpen className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Examples:</strong> &quot;John 3:16&quot;, &quot;Romans 8:28-30&quot;, &quot;1 Corinthians 13:1-13&quot;
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Additional Info */}
+          <div className="space-y-8">
+
+            {/* Submission Tips */}
+            <div className="card p-6 bg-blue-50 border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-900 mb-3">📋 Submission Tips</h3>
+              <ul className="space-y-2 text-sm text-blue-800">
+                <li className="flex items-start">
+                  <span className="text-blue-600 mr-2">•</span>
+                  <span>Be specific and clear with your question</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-600 mr-2">•</span>
+                  <span>Include timestamp for easier review</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-600 mr-2">•</span>
+                  <span>Add statistics with source URLs when possible</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-600 mr-2">•</span>
+                  <span>Reference relevant Bible verses if mentioned</span>
+                </li>
+              </ul>
             </div>
           </div>
 
           {/* Submit Button - Full Width */}
           <div className="lg:col-span-2">
-            <div className="border-t pt-6">
-              <button
-                type="submit"
-                disabled={loading || !youtubePreview || !formData.question.trim()}
-                className="w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Submit Entry for Review
-                  </>
+            <div className="card-elevated p-8 text-center animate-fade-in-up">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Ready to Submit?</h3>
+                <p className="text-gray-600 mb-6">
+                  Your contribution will be reviewed by our moderation team to ensure accuracy and quality.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={loading || !youtubePreview || !formData.question.trim()}
+                  className="btn-primary w-full text-lg py-4 px-8 mb-4"
+                >
+                  {loading ? (
+                    <>
+                      <div className="loading-spinner mr-3"></div>
+                      Submitting Entry...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-3" />
+                      Submit Entry for Review
+                    </>
+                  )}
+                </button>
+
+                {(!youtubePreview || !formData.question.trim()) && (
+                  <div className="status-warning mb-4">
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Please provide a question and valid YouTube URL
+                  </div>
                 )}
-              </button>
 
-              {(!youtubePreview || !formData.question.trim()) && (
-                <div className="mt-2 flex items-center text-sm text-amber-600">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  Please provide a question and valid YouTube URL
+                <div className="text-sm text-gray-500 space-y-1">
+                  <p>✅ Reviewed by verified moderators</p>
+                  <p>📝 Quality checked for accuracy</p>
+                  <p>🚀 Published to help the community</p>
                 </div>
-              )}
-
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Your submission will be reviewed by moderators before being published.
-              </p>
+              </div>
             </div>
           </div>
         </form>
