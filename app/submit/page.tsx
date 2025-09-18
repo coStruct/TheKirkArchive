@@ -58,8 +58,7 @@ export default function SubmitPage() {
   })
 
   const [steps, setSteps] = useState<FormStep[]>([
-    { id: 'question', title: 'Debate Question', description: 'What question was asked in the debate?', required: true, completed: false, expanded: true },
-    { id: 'video', title: 'YouTube Video', description: 'Provide the YouTube link and timestamp', required: true, completed: false, expanded: false },
+    { id: 'question-video', title: 'Question + Video', description: 'Add the YouTube link and type the debate question', required: true, completed: false, expanded: true },
     { id: 'stats', title: 'Related Statistics', description: 'Add any facts or data mentioned (optional)', required: false, completed: false, expanded: false },
     { id: 'verses', title: 'Bible References', description: 'Include any Scripture verses cited (optional)', required: false, completed: false, expanded: false },
     { id: 'review', title: 'Review & Submit', description: 'Final check before submission', required: true, completed: false, expanded: false }
@@ -68,10 +67,8 @@ export default function SubmitPage() {
   const updateStepCompletion = useCallback(() => {
     setSteps(prevSteps => prevSteps.map(step => {
       switch (step.id) {
-        case 'question':
-          return { ...step, completed: formData.question.trim().length > 0 }
-        case 'video':
-          return { ...step, completed: !!youtubePreview }
+        case 'question-video':
+          return { ...step, completed: formData.question.trim().length > 0 && !!youtubePreview }
         case 'stats':
           return { ...step, completed: true } // Optional, always complete
         case 'verses':
@@ -348,36 +345,9 @@ export default function SubmitPage() {
           <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mt-6 rounded-full"></div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Live Preview Panel */}
-          <div className="lg:order-2 space-y-6">
-            <div className="sticky top-6">
-              <div className="form-section-header">
-                <h3 className="form-section-title">
-                  <Eye className="form-section-icon" />
-                  Live Preview
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="btn-secondary text-sm py-1 px-2"
-                >
-                  {showPreview ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              {showPreview && (
-                <div className="animate-slide-in-right">
-                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm text-gray-600 mb-3">This is how your entry will appear once verified:</p>
-                  </div>
-                  <EntryCard entry={createPreviewEntry()} />
-                </div>
-              )}
-            </div>
-          </div>
-
+        <div className="max-w-4xl mx-auto">
           {/* Main Form */}
-          <div className="lg:col-span-2 lg:order-1">
+          <div>
             {/* Progress Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
@@ -432,13 +402,8 @@ export default function SubmitPage() {
                           <h3 className={`font-semibold ${step.required ? 'text-gray-900' : 'text-gray-700'}`}>
                             {step.title} {step.required && <span className="text-red-500">*</span>}
                           </h3>
-                          {step.id === 'question' && (
-                            <Tooltip content="Be specific and clear. This helps users find relevant content.">
-                              <HelpCircle className="w-4 h-4 text-gray-400" />
-                            </Tooltip>
-                          )}
-                          {step.id === 'video' && (
-                            <Tooltip content="Paste the full YouTube URL. We'll automatically detect the video ID.">
+                          {step.id === 'question-video' && (
+                            <Tooltip content="Paste the YouTube URL, then watch the clip and type the exact question that was asked.">
                               <HelpCircle className="w-4 h-4 text-gray-400" />
                             </Tooltip>
                           )}
@@ -465,39 +430,13 @@ export default function SubmitPage() {
 
                   {step.expanded && (
                     <div className="p-6 border-t border-gray-100 animate-fade-in-up">
-                      {step.id === 'question' && (
-                        <div className="space-y-4">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              required
-                              value={formData.question}
-                              onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                              className={`form-input ${formData.question ? 'success' : ''}`}
-                              placeholder="e.g., 'What's your stance on school choice and education vouchers?'"
-                            />
-                            {formData.question && (
-                              <div className="helper-text success flex items-center mt-2">
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Question captured
-                              </div>
-                            )}
-                          </div>
-                          {formData.question.trim() && (
-                            <button
-                              type="button"
-                              onClick={moveToNextStep}
-                              className="btn-primary"
-                            >
-                              Continue to Video
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {step.id === 'video' && (
+                      {step.id === 'question-video' && (
                         <div className="space-y-6">
-                          <div className="relative">
+                          {/* YouTube URL Section */}
+                          <div>
+                            <label className="form-label flex items-center mb-2">
+                              📺 YouTube URL <span className="text-red-500 ml-1">*</span>
+                            </label>
                             <input
                               type="url"
                               required
@@ -519,48 +458,13 @@ export default function SubmitPage() {
                             ) : null}
                           </div>
 
+                          {/* Video Player & Timestamp (when video is loaded) */}
                           {youtubePreview && (
-                            <>
-                              <div>
-                                <div className="flex items-center justify-between mb-3">
-                                  <div className="flex items-center text-sm font-medium text-gray-700">
-                                    <Clock className="w-4 h-4 mr-1" />
-                                    Question start time (optional)
-                                  </div>
-                                  <Tooltip content="When in the video does the question begin? This creates a direct link to the moment.">
-                                    <HelpCircle className="w-4 h-4 text-gray-400" />
-                                  </Tooltip>
-                                </div>
-                                <div className="flex items-center gap-2 mb-4">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    value={formData.timestamp_minutes}
-                                    onChange={(e) => setFormData({ ...formData, timestamp_minutes: e.target.value })}
-                                    className="form-input w-20 text-center"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-gray-500 text-sm">min</span>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="59"
-                                    value={formData.timestamp_seconds}
-                                    onChange={(e) => setFormData({ ...formData, timestamp_seconds: e.target.value })}
-                                    className="form-input w-20 text-center"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-gray-500 text-sm">sec</span>
-                                  {(formData.timestamp_minutes || formData.timestamp_seconds) && (
-                                    <span className="text-sm text-blue-600 font-medium ml-2">
-                                      = {getTotalSeconds()}s
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Interactive Timestamp Selector */}
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                  <p className="text-sm text-gray-600 mb-3">Or click in the video below to set the timestamp:</p>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <div className="grid lg:grid-cols-2 gap-6">
+                                {/* Video Player */}
+                                <div>
+                                  <p className="text-sm text-gray-600 mb-3">📹 Video Preview</p>
                                   <div className="aspect-video bg-gradient-to-br from-gray-900 to-black rounded-xl overflow-hidden mb-3">
                                     <iframe
                                       src={`https://www.youtube.com/embed/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?start=${getTotalSeconds()}` : ''}`}
@@ -570,17 +474,9 @@ export default function SubmitPage() {
                                     />
                                   </div>
                                   <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-4">
-                                      <div>
-                                        <span className="text-gray-600">Video:</span>
-                                        <code className="bg-white px-2 py-1 rounded font-mono text-xs ml-1">{youtubePreview.videoId}</code>
-                                      </div>
-                                      {getTotalSeconds() > 0 && (
-                                        <div>
-                                          <span className="text-gray-600">Start:</span>
-                                          <code className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono text-xs ml-1">{getTotalSeconds()}s</code>
-                                        </div>
-                                      )}
+                                    <div>
+                                      <span className="text-gray-600">Video ID:</span>
+                                      <code className="bg-white px-2 py-1 rounded font-mono text-xs ml-1">{youtubePreview.videoId}</code>
                                     </div>
                                     <a
                                       href={`https://youtu.be/${youtubePreview.videoId}${getTotalSeconds() > 0 ? `?t=${getTotalSeconds()}` : ''}`}
@@ -593,15 +489,83 @@ export default function SubmitPage() {
                                     </a>
                                   </div>
                                 </div>
+
+                                {/* Timestamp Controls */}
+                                <div>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <p className="text-sm text-gray-600">⏰ Question Start Time (optional)</p>
+                                    <Tooltip content="When in the video does the question begin? This creates a direct link to the moment.">
+                                      <HelpCircle className="w-4 h-4 text-gray-400" />
+                                    </Tooltip>
+                                  </div>
+                                  <div className="flex items-center gap-2 mb-4">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={formData.timestamp_minutes}
+                                      onChange={(e) => setFormData({ ...formData, timestamp_minutes: e.target.value })}
+                                      className="form-input w-20 text-center"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-gray-500 text-sm">min</span>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="59"
+                                      value={formData.timestamp_seconds}
+                                      onChange={(e) => setFormData({ ...formData, timestamp_seconds: e.target.value })}
+                                      className="form-input w-20 text-center"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-gray-500 text-sm">sec</span>
+                                  </div>
+                                  {(formData.timestamp_minutes || formData.timestamp_seconds) && (
+                                    <div className="p-2 bg-blue-50 rounded-lg border border-blue-200 mb-4">
+                                      <div className="text-sm text-blue-800">
+                                        <strong>Start time:</strong> {getTotalSeconds()}s
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
+                            </div>
+                          )}
+
+                          {/* Question Section */}
+                          <div>
+                            <label className="form-label flex items-center mb-2">
+                              💭 Debate Question <span className="text-red-500 ml-1">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={formData.question}
+                              onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                              className={`form-input ${formData.question ? 'success' : ''}`}
+                              placeholder="e.g., 'What's your stance on school choice and education vouchers?'"
+                            />
+                            <p className="text-sm text-gray-500 mt-2">
+                              💡 <em>Watch the clip and type the question exactly as asked</em>
+                            </p>
+                            {formData.question && (
+                              <div className="helper-text success flex items-center mt-2">
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Question captured
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Continue Button */}
+                          {formData.question.trim() && youtubePreview && (
+                            <div className="flex justify-center pt-4">
                               <button
                                 type="button"
                                 onClick={moveToNextStep}
-                                className="btn-primary"
+                                className="btn-primary px-8"
                               >
                                 Continue to Statistics
                               </button>
-                            </>
+                            </div>
                           )}
                         </div>
                       )}
@@ -687,13 +651,6 @@ export default function SubmitPage() {
                               </div>
                             ))}
 
-                            {formData.stats.filter(s => !s.description.trim()).length === formData.stats.length && (
-                              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                                <BarChart3 className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                                <p className="text-base font-medium mb-1">No statistics added yet</p>
-                                <p className="text-sm text-gray-400">This step is optional - add facts and data if Charlie mentioned any</p>
-                              </div>
-                            )}
 
                             <div className="flex justify-center">
                               <button
@@ -869,13 +826,6 @@ export default function SubmitPage() {
                               </div>
                             ))}
 
-                            {formData.bible_verse_ranges.filter(r => r.book).length === 0 && (
-                              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                                <BookOpen className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                                <p className="text-base font-medium mb-1">No Bible references added yet</p>
-                                <p className="text-sm text-gray-400">This step is optional - add any Scripture verses Charlie mentioned</p>
-                              </div>
-                            )}
 
                             <div className="flex justify-center">
                               <button
