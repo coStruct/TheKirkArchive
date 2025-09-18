@@ -13,6 +13,7 @@ interface UseVerifierReturn {
   isLoading: boolean
   error: string | null
   clerkIdHash: string | null
+  isReady: boolean  // New: true when both Clerk and verifier check are complete
 }
 
 export function useVerifier(): UseVerifierReturn {
@@ -58,10 +59,14 @@ export function useVerifier(): UseVerifierReturn {
     checkVerifierStatus()
   }, [userId, isLoaded])
 
+  // Calculate if we're ready (both Clerk loaded and verifier check complete)
+  const isReady = isLoaded && !isLoading
+
   return {
     isVerifier,
-    isLoading,
+    isLoading: !isReady,  // Still loading if either Clerk or verifier check isn't ready
     error,
-    clerkIdHash
+    clerkIdHash,
+    isReady
   }
 }

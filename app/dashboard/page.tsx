@@ -11,34 +11,38 @@ import { useVerifier } from '@/hooks/useVerifier'
 export default function DashboardPage() {
   const router = useRouter()
   const { userId } = useAuth()
-  const { isVerifier, isLoading: verifierLoading, error: verifierError } = useVerifier()
+  const { isVerifier, error: verifierError, isReady } = useVerifier()
   const [entries, setEntries] = useState<EntryWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
   useEffect(() => {
+    // Don't do anything until both Clerk and verifier check are complete
+    if (!isReady) return
+
+    // If no user ID after Clerk is loaded, redirect
     if (!userId) {
       router.push('/')
       return
     }
 
-    // Wait for verifier status to load
-    if (verifierLoading) return
-
+    // If there was an error checking verifier status, redirect
     if (verifierError) {
       alert(`Error checking verifier status: ${verifierError}`)
       router.push('/')
       return
     }
 
+    // If user is not a verifier, redirect
     if (!isVerifier) {
       alert('Access denied. Verifier access required.')
       router.push('/')
       return
     }
 
+    // If we get here, user is authenticated and is a verifier
     fetchPendingEntries()
-  }, [userId, isVerifier, verifierLoading, verifierError, router])
+  }, [userId, isVerifier, verifierError, isReady, router])
 
   const fetchPendingEntries = async () => {
     try {
@@ -79,7 +83,7 @@ export default function DashboardPage() {
   }
 
   // Show loading while checking verifier status
-  if (verifierLoading) {
+  if (!isReady) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
