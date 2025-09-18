@@ -41,7 +41,6 @@ export default function SubmitPage() {
   const { userId } = useAuth()
   const [loading, setLoading] = useState(false)
   const [youtubePreview, setYoutubePreview] = useState<{ videoId: string; startSeconds: number } | null>(null)
-  const [showPreview, setShowPreview] = useState(true)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [bookSearch, setBookSearch] = useState('')
   const [showBookDropdown, setShowBookDropdown] = useState<number | null>(null)
@@ -123,40 +122,6 @@ export default function SubmitPage() {
     }
   }
 
-  const createPreviewEntry = () => {
-    const totalSeconds = getTotalSeconds()
-
-    return {
-      id: 'preview',
-      question: formData.question || 'Your debate question will appear here...',
-      answer_summary: null,
-      video_id: youtubePreview?.videoId || '',
-      start_seconds: totalSeconds,
-      submitted_by_clerk_id: userId || '',
-      verified_status: 'pending' as const,
-      is_locked: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      stats: formData.stats.filter(s => s.description.trim()).map(stat => ({
-        stat: {
-          id: Math.random().toString(),
-          description: stat.description,
-          source_url: stat.source_url || undefined
-        }
-      })),
-      bible_verses: formData.bible_verse_ranges
-        .filter(r => r.book && r.startChapter && r.startVerse)
-        .map(range => ({
-          verse: {
-            id: Math.random().toString(),
-            book: range.book,
-            chapter: parseInt(range.startChapter.toString()) || 0,
-            verse: parseInt(range.startVerse.toString()) || 0,
-            text: range.text || ''
-          }
-        }))
-    }
-  }
 
   const getTotalSeconds = () => {
     const minutes = parseInt(formData.timestamp_minutes || '0')
