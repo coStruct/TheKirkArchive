@@ -174,20 +174,37 @@ export default function DashboardPage() {
             {entries.map((entry) => (
               <div key={entry.id} className="border rounded-lg p-6 bg-white shadow-sm">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {entry.question}
-                  </h3>
-                  <p className="text-gray-700">{entry.answer_summary}</p>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 flex-1">
+                      {entry.question}
+                    </h3>
+                    <span className="text-xs text-gray-500 ml-4">
+                      Submitted: {new Date(entry.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{entry.answer_summary}</p>
+                  <p className="text-sm text-gray-500">
+                    Submitted by: {entry.submitted_by_clerk_id}
+                  </p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-4 p-3 bg-gray-50 rounded-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-gray-700">Video:</span>
+                    <code className="text-xs bg-gray-200 px-2 py-1 rounded">{entry.video_id}</code>
+                    {entry.start_seconds > 0 && (
+                      <span className="text-xs text-gray-500">
+                        @ {Math.floor(entry.start_seconds / 60)}m {entry.start_seconds % 60}s
+                      </span>
+                    )}
+                  </div>
                   <a
                     href={`https://youtu.be/${entry.video_id}?t=${entry.start_seconds}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline text-sm font-medium"
                   >
-                    Verify on YouTube
+                    🎥 Watch & Verify on YouTube
                   </a>
                 </div>
 
@@ -195,8 +212,40 @@ export default function DashboardPage() {
                   <div className="mb-4">
                     <h4 className="text-sm font-semibold text-gray-600 mb-2">Stats to verify:</h4>
                     <ul className="list-disc list-inside text-sm text-gray-600">
-                      {entry.stats.map((stat) => (
-                        <li key={stat.id}>{stat.description}</li>
+                      {entry.stats.map((statWrapper, index) => (
+                        <li key={statWrapper.stat?.id || `stat-${index}`}>
+                          {statWrapper.stat?.description}
+                          {statWrapper.stat?.source_url && (
+                            <a
+                              href={statWrapper.stat.source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-1 text-blue-600 hover:underline"
+                            >
+                              [source]
+                            </a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {entry.bible_verses && entry.bible_verses.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Bible References:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {entry.bible_verses.map((verseWrapper, index) => (
+                        <li key={verseWrapper.verse?.id || `verse-${index}`} className="flex items-start gap-2">
+                          <span className="font-medium text-gray-700">
+                            {verseWrapper.verse?.book} {verseWrapper.verse?.chapter}:{verseWrapper.verse?.verse}
+                          </span>
+                          {verseWrapper.verse?.text && (
+                            <span className="text-gray-600">
+                              - &quot;{verseWrapper.verse.text}&quot;
+                            </span>
+                          )}
+                        </li>
                       ))}
                     </ul>
                   </div>

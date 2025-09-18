@@ -36,12 +36,12 @@ export default function EntryCard({ entry, onVote }: EntryCardProps) {
         <div className="mb-4">
           <h4 className="text-sm font-semibold text-gray-600 mb-2">Related Stats:</h4>
           <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-            {entry.stats.map((stat) => (
-              <li key={stat.id}>
-                {stat.description}
-                {stat.source_url && (
+            {entry.stats.map((statWrapper, index) => (
+              <li key={statWrapper.stat?.id || `stat-${index}`}>
+                {statWrapper.stat?.description}
+                {statWrapper.stat?.source_url && (
                   <a
-                    href={stat.source_url}
+                    href={statWrapper.stat.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 text-blue-600 hover:underline"
@@ -59,9 +59,16 @@ export default function EntryCard({ entry, onVote }: EntryCardProps) {
         <div className="mb-4">
           <h4 className="text-sm font-semibold text-gray-600 mb-2">Bible References:</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            {entry.bible_verses.map((verse) => (
-              <li key={verse.id}>
-                {verse.book} {verse.chapter}:{verse.verse}
+            {entry.bible_verses.map((verseWrapper, index) => (
+              <li key={verseWrapper.verse?.id || `verse-${index}`} className="flex items-start gap-2">
+                <span className="font-medium text-gray-700">
+                  {verseWrapper.verse?.book} {verseWrapper.verse?.chapter}:{verseWrapper.verse?.verse}
+                </span>
+                {verseWrapper.verse?.text && (
+                  <span className="text-gray-600">
+                    - &quot;{verseWrapper.verse.text}&quot;
+                  </span>
+                )}
               </li>
             ))}
           </ul>

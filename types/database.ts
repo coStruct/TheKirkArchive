@@ -57,9 +57,18 @@ export interface RateLimit {
   created_at: Date
 }
 
+// API response structures (nested from Supabase joins)
+export interface StatWrapper {
+  stat: Stat
+}
+
+export interface BibleVerseWrapper {
+  verse: BibleVerse
+}
+
 export interface EntryWithRelations extends Entry {
-  stats?: Stat[]
-  bible_verses?: BibleVerse[]
+  stats?: StatWrapper[]  // Changed from Stat[] to StatWrapper[]
+  bible_verses?: BibleVerseWrapper[]  // Changed from BibleVerse[] to BibleVerseWrapper[]
   vote_count?: {
     upvotes: number
     downvotes: number

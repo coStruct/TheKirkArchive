@@ -121,7 +121,7 @@ export default function SubmitPage() {
               required
               value={formData.question}
               onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="What was the question or topic being debated?"
             />
           </div>
@@ -135,7 +135,7 @@ export default function SubmitPage() {
               value={formData.answer_summary}
               onChange={(e) => setFormData({ ...formData, answer_summary: e.target.value })}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Summarize Charlie Kirk's response..."
             />
           </div>
@@ -149,7 +149,7 @@ export default function SubmitPage() {
               required
               value={formData.youtube_url}
               onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
             />
           </div>
@@ -174,14 +174,14 @@ export default function SubmitPage() {
                   value={stat.description}
                   onChange={(e) => updateStat(index, 'description', e.target.value)}
                   placeholder="Stat description"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="url"
                   value={stat.source_url}
                   onChange={(e) => updateStat(index, 'source_url', e.target.value)}
                   placeholder="Source URL"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="button"
@@ -214,21 +214,21 @@ export default function SubmitPage() {
                   value={verse.book}
                   onChange={(e) => updateVerse(index, 'book', e.target.value)}
                   placeholder="Book"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="number"
                   value={verse.chapter}
                   onChange={(e) => updateVerse(index, 'chapter', e.target.value)}
                   placeholder="Chapter"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="number"
                   value={verse.verse}
                   onChange={(e) => updateVerse(index, 'verse', e.target.value)}
                   placeholder="Verse"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 border text-gray-900 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="button"
