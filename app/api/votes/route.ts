@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit, recordRateLimit } from '@/lib/verifiers'
 import crypto from 'crypto'
+
+// Use service role for all database operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 function hashIP(ip: string): string {
   return crypto.createHash('sha256').update(ip).digest('hex')
@@ -24,48 +31,25 @@ export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
   const ipHash = hashIP(ip)
 
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_user_id', userId)
-    .single()
-
-  if (userError || !userData) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
-  const { data: rateLimitUser } = await supabase
-    .rpc('check_rate_limit_user', {
-      user_id_param: userData.id,
-      action_type: 'vote',
-      limit_count: 10,
-      time_window: '1 minute'
-    })
-
-  if (!rateLimitUser) {
+  // Check rate limits (10 votes per user per minute, 20 per IP per minute)
+  const rateLimitOk = await checkRateLimit(userId, ipHash, 'vote', 10, 20, 1)
+  if (!rateLimitOk) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
   }
 
-  const { data: rateLimitIP } = await supabase
-    .rpc('check_rate_limit_ip', {
-      ip_hash_param: ipHash,
-      limit_count: 20,
-      time_window: '1 minute'
-    })
+  // Record rate limit action
+  await recordRateLimit(userId, ipHash, 'vote')
 
-  if (!rateLimitIP) {
-    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-  }
-
+  // Upsert vote (update if exists, insert if not)
   const { data: vote, error: voteError } = await supabase
     .from('votes')
     .upsert({
-      user_id: userData.id,
+      clerk_user_id: userId,
       entry_id,
       vote_type,
       ip_hash: ipHash
     }, {
-      onConflict: 'user_id,entry_id'
+      onConflict: 'clerk_user_id,entry_id'
     })
     .select()
     .single()
@@ -74,6 +58,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: voteError.message }, { status: 500 })
   }
 
+  // Get updated vote count for the entry
   const { data: voteCount } = await supabase
     .rpc('calculate_weighted_score', { entry_id_param: entry_id })
     .single()
@@ -95,25 +80,20 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Entry ID required' }, { status: 400 })
   }
 
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_user_id', userId)
-    .single()
-
-  if (userError || !userData) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   const { error: deleteError } = await supabase
     .from('votes')
     .delete()
-    .eq('user_id', userData.id)
+    .eq('clerk_user_id', userId)
     .eq('entry_id', entry_id)
 
   if (deleteError) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 })
   }
 
-  return NextResponse.json({ success: true })
+  // Get updated vote count for the entry
+  const { data: voteCount } = await supabase
+    .rpc('calculate_weighted_score', { entry_id_param: entry_id })
+    .single()
+
+  return NextResponse.json({ success: true, vote_count: voteCount })
 }

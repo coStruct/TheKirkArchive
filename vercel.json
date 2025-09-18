@@ -6,13 +6,16 @@
   "installCommand": "npm install",
   "regions": ["iad1"],
   "functions": {
-    "app/api/webhooks/clerk/route.ts": {
-      "maxDuration": 10
-    },
     "app/api/entries/route.ts": {
       "maxDuration": 10
     },
+    "app/api/entries/[id]/route.ts": {
+      "maxDuration": 10
+    },
     "app/api/votes/route.ts": {
+      "maxDuration": 10
+    },
+    "app/api/verifiers/route.ts": {
       "maxDuration": 10
     }
   }
