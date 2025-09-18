@@ -5,7 +5,7 @@ import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/header'
 import { EntryWithRelations } from '@/types/database'
-import { CheckCircle, XCircle, Shield, AlertCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Shield, AlertCircle, ChevronDown, ChevronRight, ExternalLink, BookOpen, BarChart3 } from 'lucide-react'
 import { useVerifier } from '@/hooks/useVerifier'
 
 export default function DashboardPage() {
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [entries, setEntries] = useState<EntryWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [expandedEntry, setExpandedEntry] = useState<string | null>(null)
 
   useEffect(() => {
     // Don't do anything until both Clerk and verifier check are complete
@@ -144,18 +145,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <main className="container mx-auto px-4 py-12 max-w-6xl">
+        <div className="text-center mb-12 animate-fade-in-up">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
             <Shield className="text-blue-600" />
             Moderation Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Review and verify pending entries submitted by the community.
           </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mt-6 rounded-full"></div>
         </div>
 
         {loading ? (
@@ -170,107 +172,164 @@ export default function DashboardPage() {
             <p className="text-gray-600">No pending entries to review.</p>
           </div>
         ) : (
-          <div className="grid gap-6">
+          <div className="space-y-4">
             {entries.map((entry) => (
-              <div key={entry.id} className="border rounded-lg p-6 bg-white shadow-sm">
-                <div className="mb-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 flex-1">
-                      {entry.question}
-                    </h3>
-                    <span className="text-xs text-gray-500 ml-4">
-                      Submitted: {new Date(entry.created_at).toLocaleDateString()}
-                    </span>
+              <div key={entry.id} className="form-section">
+                <button
+                  type="button"
+                  onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
+                      <span className="text-xs font-semibold">?</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">
+                        {entry.question}
+                      </h3>
+                      <p className="text-sm text-gray-500 flex items-center gap-4">
+                        <span>Submitted {new Date(entry.created_at).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>Video: {entry.video_id}</span>
+                        {entry.start_seconds > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>@ {Math.floor(entry.start_seconds / 60)}m {entry.start_seconds % 60}s</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  {entry.answer_summary && (
-                    <p className="text-gray-700 mb-2">{entry.answer_summary}</p>
+                  {expandedEntry === entry.id ? (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   )}
-                  <p className="text-sm text-gray-500">
-                    Submitted by: {entry.submitted_by_clerk_id}
-                  </p>
-                </div>
+                </button>
 
-                <div className="mb-4 p-3 bg-gray-50 rounded-md">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-gray-700">Video:</span>
-                    <code className="text-xs bg-gray-200 px-2 py-1 rounded">{entry.video_id}</code>
-                    {entry.start_seconds > 0 && (
-                      <span className="text-xs text-gray-500">
-                        @ {Math.floor(entry.start_seconds / 60)}m {entry.start_seconds % 60}s
-                      </span>
-                    )}
-                  </div>
-                  <a
-                    href={`https://youtu.be/${entry.video_id}?t=${entry.start_seconds}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline text-sm font-medium"
-                  >
-                    🎥 Watch & Verify on YouTube
-                  </a>
-                </div>
-
-                {entry.stats && entry.stats.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Stats to verify:</h4>
-                    <ul className="list-disc list-inside text-sm text-gray-600">
-                      {entry.stats.map((statWrapper, index) => (
-                        <li key={statWrapper.stat?.id || `stat-${index}`}>
-                          {statWrapper.stat?.description}
-                          {statWrapper.stat?.source_url && (
+                {expandedEntry === entry.id && (
+                  <div className="p-6 border-t border-gray-100 animate-fade-in-up space-y-6">
+                    {/* Video Section */}
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        {/* Video Player */}
+                        <div>
+                          <p className="text-sm text-gray-600 mb-3 flex items-center">
+                            📹 Video Preview
+                            <span className="ml-2 text-xs bg-gray-200 px-2 py-1 rounded font-mono">{entry.video_id}</span>
+                          </p>
+                          <div className="aspect-video bg-gradient-to-br from-gray-900 to-black rounded-xl overflow-hidden mb-3">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${entry.video_id}${entry.start_seconds > 0 ? `?start=${entry.start_seconds}` : ''}`}
+                              className="youtube-iframe"
+                              allowFullScreen
+                              title="YouTube video preview"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <div>
+                              {entry.start_seconds > 0 && (
+                                <div className="text-blue-600 font-medium">
+                                  Starts at: {Math.floor(entry.start_seconds / 60)}m {entry.start_seconds % 60}s
+                                </div>
+                              )}
+                            </div>
                             <a
-                              href={statWrapper.stat.source_url}
+                              href={`https://youtu.be/${entry.video_id}${entry.start_seconds > 0 ? `?t=${entry.start_seconds}` : ''}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="ml-1 text-blue-600 hover:underline"
+                              className="btn-secondary text-sm py-1 px-3"
                             >
-                              [source]
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Open
                             </a>
+                          </div>
+                        </div>
+
+                        {/* Entry Details */}
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-600 mb-2">Entry Details</h4>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p><strong>Submitted by:</strong> {entry.submitted_by_clerk_id}</p>
+                              <p><strong>Date:</strong> {new Date(entry.created_at).toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          {entry.stats && entry.stats.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <BarChart3 className="w-4 h-4 mr-1" />
+                                Statistics ({entry.stats.length})
+                              </h4>
+                              <ul className="space-y-2">
+                                {entry.stats.map((statWrapper, index) => (
+                                  <li key={statWrapper.stat?.id || `stat-${index}`} className="p-2 bg-white rounded border-l-4 border-l-blue-500 text-sm">
+                                    <div className="text-gray-900">{statWrapper.stat?.description}</div>
+                                    {statWrapper.stat?.source_url && (
+                                      <a
+                                        href={statWrapper.stat.source_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline text-xs"
+                                      >
+                                        📊 View Source
+                                      </a>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           )}
-                        </li>
-                      ))}
-                    </ul>
+
+                          {entry.bible_verses && entry.bible_verses.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                <BookOpen className="w-4 h-4 mr-1" />
+                                Bible References ({entry.bible_verses.length})
+                              </h4>
+                              <ul className="space-y-2">
+                                {entry.bible_verses.map((verseWrapper, index) => (
+                                  <li key={verseWrapper.verse?.id || `verse-${index}`} className="p-2 bg-white rounded border-l-4 border-l-purple-500 text-sm">
+                                    <div className="font-medium text-purple-700">
+                                      📖 {verseWrapper.verse?.book} {verseWrapper.verse?.chapter}:{verseWrapper.verse?.verse}
+                                    </div>
+                                    {verseWrapper.verse?.text && (
+                                      <div className="text-gray-600 mt-1 italic">
+                                        &quot;{verseWrapper.verse.text}&quot;
+                                      </div>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 justify-center pt-4">
+                      <button
+                        onClick={() => updateEntryStatus(entry.id, 'verified')}
+                        disabled={updating === entry.id}
+                        className="btn-primary flex items-center gap-2 px-6"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        {updating === entry.id ? 'Verifying...' : 'Verify Entry'}
+                      </button>
+                      <button
+                        onClick={() => updateEntryStatus(entry.id, 'rejected')}
+                        disabled={updating === entry.id}
+                        className="btn-danger flex items-center gap-2 px-6"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        {updating === entry.id ? 'Rejecting...' : 'Reject Entry'}
+                      </button>
+                    </div>
                   </div>
                 )}
-
-                {entry.bible_verses && entry.bible_verses.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Bible References:</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      {entry.bible_verses.map((verseWrapper, index) => (
-                        <li key={verseWrapper.verse?.id || `verse-${index}`} className="flex items-start gap-2">
-                          <span className="font-medium text-gray-700">
-                            {verseWrapper.verse?.book} {verseWrapper.verse?.chapter}:{verseWrapper.verse?.verse}
-                          </span>
-                          {verseWrapper.verse?.text && (
-                            <span className="text-gray-600">
-                              - &quot;{verseWrapper.verse.text}&quot;
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => updateEntryStatus(entry.id, 'verified')}
-                    disabled={updating === entry.id}
-                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle size={20} />
-                    {updating === entry.id ? 'Verifying...' : 'Verify'}
-                  </button>
-                  <button
-                    onClick={() => updateEntryStatus(entry.id, 'rejected')}
-                    disabled={updating === entry.id}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <XCircle size={20} />
-                    {updating === entry.id ? 'Rejecting...' : 'Reject'}
-                  </button>
-                </div>
               </div>
             ))}
           </div>

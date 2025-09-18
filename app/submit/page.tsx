@@ -4,9 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@clerk/nextjs'
 import Header from '@/components/header'
-import EntryCard from '@/components/entry-card'
 import { extractYouTubeInfo } from '@/lib/utils'
-import { Clock, BookOpen, BarChart3, Plus, Minus, ExternalLink, CheckCircle, AlertCircle, ChevronDown, ChevronRight, HelpCircle, Eye, Link, TrendingUp } from 'lucide-react'
+import { BookOpen, Plus, Minus, ExternalLink, CheckCircle, AlertCircle, ChevronDown, ChevronRight, HelpCircle, Link, TrendingUp } from 'lucide-react'
 
 interface BibleVerseRange {
   book: string
